@@ -1,26 +1,81 @@
-import React from 'react';
-import logo from './logo.svg';
+import React ,{Component}from 'react';
 import './App.css';
+import Navigation from './components/Navigation/Navigation.js';
+import 'tachyons';
+import Particles from 'react-particles-js';
+import SignIn from './components/SignIn/SignIn.js';
+import Homepage from './components/Homepage/Homepage.js';
+import Register from './components/Register/Register.js';
+import fire from './config/fire.js'
+const particlesOptions ={
+  particles:{
+    number:{
+      value:200,
+      density:{
+        enable:true,
+        value_area:800
+      }
+    }
+  }
+}
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component{
+  constructor(){
+    super();
+    this.state ={
+      route:'signin',
+      isSignedin:false,
+      user:null
+    }
+
+  }
+
+  onRouteChange =(route)=>{
+    if(route==='home')
+    {
+      this.setState({isSignedin:true});
+    } else{
+      this.setState({isSignedin:false}); 
+    }
+    this.setState({route:route});
+  }
+
+  componentDidMount(){
+    this.authListener();
+
+  }
+
+  authListener(){
+    fire.auth().onAuthStateChanged((user)=>{
+      
+      if(user){
+      this.setState({user});
+      this.setState({isSignedin:true,route:'home'});
+    
+      localStorage.setItem('user',user.uid);
+      } else{
+        this.setState({user:null});
+        localStorage.removeItem('user');
+      }
+    });
+  }
+
+  render(){
+    return(
+      <div className="App">
+        <Particles className='particles'
+                params={particlesOptions} 
+        />
+        <Navigation isSignedIn={this.state.isSignedin} onRouteChange = {this.onRouteChange}/>
+        { this.state.user
+          ?<Homepage user={this.state.user}/>
+          :this.state.route==="register"
+            ?<Register onRouteChange ={this.onRouteChange}/>
+            :<SignIn onRouteChange ={this.onRouteChange} />
+      }
+      </div>
+      );
+  }
 }
 
 export default App;
