@@ -7,6 +7,7 @@ import SignIn from './components/SignIn/SignIn.js';
 import Homepage from './components/Homepage/Homepage.js';
 import Register from './components/Register/Register.js';
 import fire from './config/fire.js'
+import AppointmentPage from './components/Appointment/appointment';
 const particlesOptions ={
   particles:{
     number:{
@@ -31,7 +32,7 @@ class App extends Component{
   }
 
   onRouteChange =(route)=>{
-    if(route==='home')
+    if(route==='home' || route==='appointment')
     {
       this.setState({isSignedin:true});
     } else{
@@ -66,9 +67,13 @@ class App extends Component{
         <Particles className='particles'
                 params={particlesOptions} 
         />
-        <Navigation isSignedIn={this.state.isSignedin} onRouteChange = {this.onRouteChange}/>
+        <Navigation isSignedIn={this.state.isSignedin} onRouteChange = {this.onRouteChange} route = {this.state.route}/>
         { this.state.user
-          ?<Homepage user={this.state.user}/>
+          ?
+            this.state.route==="appointment"?
+            <AppointmentPage user={this.state.user}/>
+            :<Homepage user={this.state.user}/>
+          
           :this.state.route==="register"
             ?<Register onRouteChange ={this.onRouteChange}/>
             :<SignIn onRouteChange ={this.onRouteChange} />

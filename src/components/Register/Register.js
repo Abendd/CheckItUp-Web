@@ -9,24 +9,30 @@ class Register extends Component{
 			email:'',
 			password:'',
 			address:'',
-			user:null
+			user:null,
+			phone:"",
 		}
-		this.db = fire.database().ref().child('labs');
-
+		// this.db = fire.database().ref().child('labs');
+		this.db = fire.firestore();
 
 	}
 	signup(e){
 	    e.preventDefault();
-	    fire.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then((u)=>{this.db = this.db.child(u.user.uid);
+	    fire.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then((u)=>{
 	   	    if (u)
 	   	    {
-	   	    	this.db.push().set({name:this.state.name,address:this.state.address});
+				   console.log(u);
+				   // this.db.push().set({name:this.state.name,address:this.state.address});
+				   this.db.collection('labs').doc(u.user.uid).set({
+					name: this.state.name,
+					email: this.state.email,
+					address:this.state.address,
+					phone:this.state.phone,
+				  })
 	   	    }
 	   	    })
 	    .catch((error) => {
-	    	console.log('sa')
 	        if(!error){
-	        	console.log("ye",this.state.name,this.state.address);
 	        	this.props.onRouteChange('home');
 	        	
 	        }
@@ -45,7 +51,9 @@ class Register extends Component{
 	onAddressChange = (event) => {
 		this.setState({address:event.target.value});
 	}
-
+	onPhoneChange = (event) => {
+		this.setState({phone:event.target.value});
+	}
 	render(){
 		const {onRouteChange} = this.props;
 		return (
@@ -65,6 +73,10 @@ class Register extends Component{
 			      <div className="mt3">
 			        <label className="db fw6 lh-copy f6" >Address</label>
 			        <input onChange={this.onAddressChange} className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" type="text" name="address"  id="address"/>
+			      </div>
+				  <div className="mt3">
+			        <label className="db fw6 lh-copy f6" >Phone Number</label>
+			        <input onChange={this.onPhoneChange} className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" type="text" name="PhoneNumber"  id="PhoneNumber"/>
 			      </div>			      
 			      <div className="mv3">
 			        <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
