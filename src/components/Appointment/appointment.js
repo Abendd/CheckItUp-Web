@@ -14,24 +14,30 @@ class AppointmentPage extends Component{
 		this.db = fire.firestore().collection('labs').doc(this.props.user.uid).collection('appointments');
 
 	}
+
+	acceptAppointment(id ,db){
+		db.doc(id).update({'Accepted':'1'});
+	}
 	componentWillMount(){
+		
 		const prevappointment = [];
 		this.db.onSnapshot(querySnapshot => {
 		  querySnapshot.forEach(i =>{
             prevappointment.push({
-					name:i.data().name,
-                    phone:i.data().phone,
-                    date:i.data().date,
-                    testName:i.data().testName
+                    date:i.data().Date,
+					time:i.data().Time,
+					accepted:i.data().Accepted,
+					id:i.id
 				})
 		  })
-
+		  console.log(prevappointment)
 		  this.setState({
-			  appointments:prevappointment
+			  appointments:prevappointment.slice(prevappointment.length-4,prevappointment.length)
 		  })
-		}, err => {
+		} , err => {
 		  console.log(`Encountered error: ${err}`);
 		});
+		
 	}
 
 	render(){
@@ -39,9 +45,21 @@ class AppointmentPage extends Component{
 			<div>
 				<h1>Lal PathLabs</h1>
 					{
-						this.state.appointments.map((appointment)=>{
+
+						this.state.appointments.map((appointment,index)=>{
+
 							return(
-								<AppointmentCard name={appointment.name} date = {appointment.date} phone = {appointment.phone} testName = {appointment.testName}/>
+								<React.Fragment key={appointment.id}>
+								<AppointmentCard appointments = {this.state.appointments}
+												 cardid = {index}
+												 date = {appointment.date} 
+												 time = {appointment.time} 
+												 accepted = {appointment.accepted} 
+												 id={appointment.id} 
+												 acceptAppointment = {this.acceptAppointment}
+												 db={this.db}
+								/>
+								</React.Fragment>
 							);
 						})
 					}
